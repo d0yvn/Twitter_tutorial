@@ -27,19 +27,19 @@ class MainTapController: UITabBarController {
     //MARK: - LifeCycles
     override func viewDidLoad() {
         super.viewDidLoad()
-
 //        logUserOut()
         authenticateUserAndConfigureUI()
-        // Do any additional setup after loading the view.
     }
     
     //MARK: - API call
-    
     func fetchUser() {
-        UserService.shared.fetchUser { user in
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+
+        UserService.shared.fetchUser(uid: uid, completion: { user in
             self.user = user
-        }
+        })
     }
+    
     func authenticateUserAndConfigureUI() {
         if Auth.auth().currentUser == nil {
             DispatchQueue.main.async {
@@ -61,20 +61,27 @@ class MainTapController: UITabBarController {
             print("failed to logout \(error.localizedDescription)")
         }
     }
-    //MARK: - selectors
     
+    //MARK: - selectors
     @objc func buttonTapped(){
-        print(123)
+        guard let user = user else { return }
+        let controller = UploadTweetController(user: user)
+        let nav = UINavigationController(rootViewController: controller)
+        nav.modalPresentationStyle = .fullScreen
+        present(nav, animated: true, completion: nil)
     }
+    
     //MARK: - helper
     func configureUI(){
         view.backgroundColor = .white
+        tabBar.isTranslucent = false
         view.addSubview(actionButton)
         actionButton.anchor(bottom: view.safeAreaLayoutGuide.bottomAnchor, right: view.rightAnchor, paddingBottom: 64, paddingRight: 16, width: 56, height: 56 )
         actionButton.layer.cornerRadius = 56 / 2
     }
+    
     func configureViewControllers(){
-        let feed = FeedContoller()
+        let feed = FeedContoller(collectionViewLayout: UICollectionViewFlowLayout())
         let nav1 = templateNavigationController(image: UIImage(named: "home_unselected"), rootViewController: feed)
         
         let explore = ExploreController()
@@ -86,7 +93,8 @@ class MainTapController: UITabBarController {
         let conversations = ConversationsController()
         let nav4 = templateNavigationController(image: UIImage(named: "ic_mail_outline_white_2x-1"), rootViewController: conversations)
         
-        viewControllers = [nav1,nav2,nav3,nav4]
+        setViewControllers([nav1,nav2,nav3,nav4], animated: false)
+//        viewControllers = [nav1,nav2,nav3,nav4]
         
     }
     
@@ -95,7 +103,6 @@ class MainTapController: UITabBarController {
         let navigation = UINavigationController(rootViewController: rootViewController)
         navigation.tabBarItem.image = image
         navigation.navigationBar.tintColor = .white
-        
         return navigation
     }
     

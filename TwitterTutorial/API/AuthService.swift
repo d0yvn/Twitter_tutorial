@@ -11,11 +11,13 @@ struct AuthCredentials {
 struct AuthService {
     static let shared = AuthService()
     
+    //Login
     func logUserIn(withEmail email:String, password:String,completion:AuthDataResultCallback?) {
-        
         Auth.auth().signIn(withEmail: email, password: password, completion: completion)
         print("Debug email is \(email),password is \(password)")
     }
+    
+    //Register
     func registerUser(credential: AuthCredentials, completion:@escaping(Error?,DatabaseReference)->Void){
         
         let email = credential.email
@@ -28,10 +30,14 @@ struct AuthService {
         let filename = NSUUID().uuidString
         let storageRef = STORAGE_PROFILE_IMAGES.child(filename)
         
+        //storage에 이미지 정보 저장
         storageRef.putData(imageData, metadata: nil) { (meta,error) in
+            //storage에 저장된 imageURL 조회
             storageRef.downloadURL { url, error in
+                
                 guard let profileImageURL = url?.absoluteString else { return }
                 
+                // 유저 생성
                 Auth.auth().createUser(withEmail: email, password: password) { result, error in
                     if let error = error {
                         print("Debug error : \(error.localizedDescription)")
@@ -45,6 +51,7 @@ struct AuthService {
                                   "fullname" : fullname,
                                   "profileImageUrl" : profileImageURL]
                     
+                    // email,username,fullname,profileImageUrl을 User database에 저장
                     REF_USERS.child(uid).updateChildValues(values, withCompletionBlock: completion)
                     
                 }
