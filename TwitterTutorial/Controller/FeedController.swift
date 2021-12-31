@@ -7,7 +7,6 @@ private let reuseIdentifier = "TweetCell"
 class FeedContoller: UICollectionViewController {
     
     //MARK: - Properties
-    
     var user: User? {
         didSet{ configureLeftBarButton() }
     }
@@ -24,6 +23,12 @@ class FeedContoller: UICollectionViewController {
         super.viewDidLoad()
         configureUI()
         fetchTweet()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.navigationBar.barStyle = .default
+        navigationController?.navigationBar.isHidden = false
     }
     
     //MARK: - API
@@ -43,7 +48,9 @@ class FeedContoller: UICollectionViewController {
         
         let imageView = UIImageView(image: UIImage(named: "twitter_logo_blue"))
         imageView.contentMode = .scaleAspectFit
+        
         navigationItem.titleView = imageView
+        
     }
     
     func configureLeftBarButton() {
@@ -68,18 +75,29 @@ extension FeedContoller {
 
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as? TweetCell else { return UICollectionViewCell()}
+        
+        cell.delegate = self
         cell.tweet = tweets[indexPath.row]
         
         return cell
-       
     }
-    
 }
 
 //MARK: - UICollectionViewDelegateFlowLayout
 extension FeedContoller : UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        
         return CGSize(width: view.frame.width, height: 120)
+    }
+}
+
+//MARK: - TweetCell Delegate
+extension FeedContoller: TweetCellDelegate {
+    
+    func handleProfileImageTapped(_ cell:TweetCell) {
+        
+        guard let user = cell.tweet?.user else { return }
+        
+        let controller = ProfileController(user: user)
+        navigationController?.pushViewController(controller, animated: true)
     }
 }

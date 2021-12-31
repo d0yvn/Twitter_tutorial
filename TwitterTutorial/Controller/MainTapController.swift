@@ -42,13 +42,15 @@ class MainTapController: UITabBarController {
     
     func authenticateUserAndConfigureUI() {
         if Auth.auth().currentUser == nil {
+            //유저 로그인 X
             DispatchQueue.main.async {
                 let nav = UINavigationController(rootViewController: LoginController())
                 nav.modalPresentationStyle = .fullScreen
                 self.present(nav, animated: true, completion: nil)
             }
         } else {
-            configureViewControllers()
+            // 유저 로그인 O
+            configureViewControllers() //탭바 설정.
             configureUI()
             fetchUser()
         }
@@ -94,7 +96,6 @@ class MainTapController: UITabBarController {
         let nav4 = templateNavigationController(image: UIImage(named: "ic_mail_outline_white_2x-1"), rootViewController: conversations)
         
         setViewControllers([nav1,nav2,nav3,nav4], animated: false)
-//        viewControllers = [nav1,nav2,nav3,nav4]
         
     }
     
@@ -105,16 +106,5 @@ class MainTapController: UITabBarController {
         navigation.navigationBar.tintColor = .white
         return navigation
     }
-    
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
 
 }
