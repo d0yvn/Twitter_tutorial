@@ -176,8 +176,7 @@ extension RegisterController : UIImagePickerControllerDelegate,UINavigationContr
         plusPhotoButton.imageView?.clipsToBounds = true
         plusPhotoButton.layer.borderWidth = 3
         plusPhotoButton.layer.borderColor = UIColor.white.cgColor
-        
-        self.plusPhotoButton.setImage(profileImage.withRenderingMode(.alwaysOriginal), for: .normal)
+        plusPhotoButton.setImage(profileImage.withRenderingMode(.alwaysOriginal), for: .normal)
         
         dismiss(animated: true)
     }

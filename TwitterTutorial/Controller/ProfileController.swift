@@ -6,7 +6,7 @@ private let headerIdentifier = "ProfileHeader"
 
 class ProfileController: UICollectionViewController{
     //MARK: - Propertis
-    private let user: User
+    private var user: User
     
     private var tweets = [Tweet]() {
         didSet {
@@ -28,7 +28,8 @@ class ProfileController: UICollectionViewController{
         super.viewDidLoad()
         configureCollectionView()
         fetchTweets()
-        print("DUBUG: User is \(user.fullname)")
+        checkIfUserIsFollowed()
+        fetchUserStats()
     }
     
     //navigiationbar hidden
@@ -44,6 +45,19 @@ class ProfileController: UICollectionViewController{
         }
     }
     
+    func checkIfUserIsFollowed() {
+        UserService.shared.checkIfUserIsFollowed(uid: user.uid) { isFollowed in
+            self.user.isFollowed = isFollowed
+            self.collectionView.reloadData()
+        }
+    }
+    
+    func fetchUserStats() {
+        UserService.shared.fetchUserStats(uid: user.uid) { states in
+            self.user.stats = states
+            self.collectionView.reloadData()
+        }
+    }
     //MARK: - Helper
     
     func configureCollectionView() {
@@ -96,6 +110,22 @@ extension ProfileController: UICollectionViewDelegateFlowLayout {
 extension ProfileController: ProfileHeaderDelegate {
     func handleDismissal() {
         navigationController?.popViewController(animated: true)
-        print("DEBUG: Handle dismiss profile from ProfileController")
+        
+    }
+    func handleEditProfileFollow(_ header: ProfileHeader) {
+        if user.isCurrentUser {
+            return
+        }
+        if user.isFollowed {
+            UserService.shared.unfollowUser(uid: user.uid) { (ref,error) in
+                self.user.isFollowed = false
+                self.collectionView.reloadData()
+            }
+        }else {
+            UserService.shared.followUser(uid: user.uid) { (ref,error) in
+                self.user.isFollowed = true
+                self.collectionView.reloadData()
+            }
+        }  
     }
 }

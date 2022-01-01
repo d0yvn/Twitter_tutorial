@@ -2,6 +2,7 @@ import UIKit
 
 protocol ProfileHeaderDelegate: class {
     func handleDismissal()
+    func handleEditProfileFollow(_ header: ProfileHeader)
 }
 
 // supplementary cell 생성시 UICollectinonReuseableView 사용.
@@ -43,7 +44,7 @@ class ProfileHeader : UICollectionReusableView {
         return imageView
     }()
     
-    private lazy var editProfileFollowButton: UIButton = {
+    lazy var editProfileFollowButton: UIButton = {
         let button = UIButton()
         button.setTitle("Follow", for: .normal)
         button.layer.borderColor = UIColor.twitterBlue.cgColor
@@ -85,7 +86,6 @@ class ProfileHeader : UICollectionReusableView {
     
     private let followingLabel: UILabel = {
         let label = UILabel()
-        
         label.text = "0 Following"
         let followTap = UITapGestureRecognizer(target: self, action: #selector(handleFollowingTapped))
         label.isUserInteractionEnabled = true
@@ -160,7 +160,7 @@ class ProfileHeader : UICollectionReusableView {
     }
     
     @objc func handleEditProfileFollow() {
-        
+        delegate?.handleEditProfileFollow(self)
     }
     
     @objc func handleFollowersTapped() {
@@ -198,6 +198,5 @@ extension ProfileHeader: ProfileFilterViewDelegate {
         UIView.animate(withDuration: 0.3) {
             self.underlineView.frame.origin.x = xPosition
         }
-                
     }
 }
