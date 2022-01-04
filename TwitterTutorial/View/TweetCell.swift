@@ -2,6 +2,8 @@ import UIKit
 
 protocol TweetCellDelegate: class {
     func handleProfileImageTapped(_ cell: TweetCell)
+    func handleReplyTapped(_ cell:TweetCell)
+    func handleLikeTapped(_ cell:TweetCell)
 }
 
 class TweetCell : UICollectionViewCell {
@@ -40,7 +42,7 @@ class TweetCell : UICollectionViewCell {
         button.setImage(UIImage(named:"comment"), for: .normal)
         button.tintColor = .darkGray
         button.setDimensions(width: 20, height: 20 )
-        button.addTarget(self, action: #selector(handleCommentTapped), for: .touchUpInside)
+        button.addTarget(self, action: #selector(handleReplyTapped), for: .touchUpInside)
         return button
     }()
     
@@ -100,8 +102,9 @@ class TweetCell : UICollectionViewCell {
         actionStack.spacing = 72
         
         addSubview(actionStack)
-        actionStack.anchor( bottom: bottomAnchor, paddingBottom: 8)
+        actionStack.anchor(bottom: bottomAnchor,paddingBottom: 8)
         actionStack.centerX(inView: self)
+        
         let underlineView = UIView()
         underlineView.backgroundColor = .systemGroupedBackground
         addSubview(underlineView)
@@ -117,14 +120,14 @@ class TweetCell : UICollectionViewCell {
     @objc func handleProfileImageTapped() {
         delegate?.handleProfileImageTapped(self)
     }
-    @objc func handleCommentTapped() {
-        
+    @objc func handleReplyTapped() {
+        delegate?.handleReplyTapped(self)
     }
     @objc func handleRetweetTapped() {
         
     }
     @objc func handleLikeTapped() {
-        
+        delegate?.handleLikeTapped(self)
     }
     @objc func handleShareTapped() {
         
@@ -137,5 +140,7 @@ class TweetCell : UICollectionViewCell {
         captionLabel.text = tweet.caption
         profileImageView.sd_setImage(with: viewModel.profileImageUrl)
         infoLabel.attributedText = viewModel.userInfoText
+        likeButton.tintColor = viewModel.likeButtonTintColor
+        likeButton.setImage(viewModel.likeButtonImage, for: .normal)
     }
 }
