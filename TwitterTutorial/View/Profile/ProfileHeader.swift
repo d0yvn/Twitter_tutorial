@@ -3,6 +3,7 @@ import UIKit
 protocol ProfileHeaderDelegate: class {
     func handleDismissal()
     func handleEditProfileFollow(_ header: ProfileHeader)
+    func didSelect(filter:ProfileFilterOptions)
 }
 
 // supplementary cell 생성시 UICollectinonReuseableView 사용.
@@ -77,13 +78,6 @@ class ProfileHeader : UICollectionReusableView {
         return label
     }()
     
-    private let underlineView: UIView = {
-        let view = UIView()
-        view.backgroundColor = .twitterBlue
-        
-        return view
-    }()
-    
     private let followingLabel: UILabel = {
         let label = UILabel()
         label.text = "0 Following"
@@ -101,6 +95,14 @@ class ProfileHeader : UICollectionReusableView {
         label.addGestureRecognizer(followTap)
         return label
     }()
+    
+    private let underlineView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .twitterBlue
+        
+        return view
+    }()
+    
     
     //MARK: - Lifecycle
     
@@ -144,8 +146,8 @@ class ProfileHeader : UICollectionReusableView {
         filterBar.anchor(left: leftAnchor, bottom: bottomAnchor, right: rightAnchor,height: 50)
         filterBar.delegate = self
         
-        addSubview(underlineView)
-        underlineView.anchor(left: leftAnchor, bottom: bottomAnchor,width:frame.width/3, height: 2)
+        //        addSubview(underlineView)
+        //        underlineView.anchor(left: leftAnchor, bottom: bottomAnchor,width:frame.width/3, height: 2)
         
     }
     
@@ -189,14 +191,9 @@ class ProfileHeader : UICollectionReusableView {
 
 //MARK: - ProfileFilterViewDelegate
 extension ProfileHeader: ProfileFilterViewDelegate {
-    
     //tweet,tweet&replies,likes 상태바 터치 상태 변화.
-    func filterView(_ view: ProfileFilterView, didSeletect indexPath: IndexPath) {
-        guard let cell = view.collectionView.cellForItem(at: indexPath) as? ProfileFilterCell else { return }
-        
-        let xPosition = cell.frame.origin.x
-        UIView.animate(withDuration: 0.3) {
-            self.underlineView.frame.origin.x = xPosition
-        }
+    func filterView(_ view: ProfileFilterView, didSeletect index: Int) {
+        guard let filter = ProfileFilterOptions(rawValue: index) else { return }
+        delegate?.didSelect(filter: filter)
     }
 }

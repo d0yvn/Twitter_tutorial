@@ -3,7 +3,7 @@ import UIKit
 private let identifier = "ProfileFilterCell"
 
 protocol ProfileFilterViewDelegate: class {
-    func filterView(_ view: ProfileFilterView,didSeletect indexPath: IndexPath)
+    func filterView(_ view: ProfileFilterView,didSeletect index: Int)
 }
 class ProfileFilterView : UIView {
     
@@ -16,6 +16,13 @@ class ProfileFilterView : UIView {
         cv.delegate = self
         cv.dataSource = self
         return cv
+    }()
+    
+    private let underlineView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .twitterBlue
+        
+        return view
     }()
     
     //MARK: - LifeCycle
@@ -32,6 +39,11 @@ class ProfileFilterView : UIView {
         backgroundColor = .white
     }
     
+    override func layoutSubviews() {
+        print("DEBUG: did layout subviews")
+        addSubview(underlineView)
+        underlineView.anchor(left: leftAnchor, bottom: bottomAnchor,width: frame.width/3,height: 2)
+    }
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -57,7 +69,15 @@ extension ProfileFilterView: UICollectionViewDataSource {
 //MARK: - UICollectionViewDelegate
 extension ProfileFilterView:UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        delegate?.filterView(self, didSeletect: indexPath)
+        let cell = collectionView.cellForItem(at: indexPath)
+        let xPosition = cell?.frame.origin.x ?? 0
+        
+        UIView.animate(withDuration: 0.3) {
+            self.underlineView.frame.origin.x = xPosition
+        }
+        
+        print("DEBUG: Delegate action to profile header from filter bar")
+        delegate?.filterView(self, didSeletect: indexPath.row)
     }
 }
 

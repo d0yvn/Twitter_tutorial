@@ -40,7 +40,7 @@ class UploadTweetController: UIViewController {
         return iv
     }()
     
-    private let captionTextview = CaptionTextView()
+    private let captionTextview = InputTextView()
     private lazy var replyLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 14)
@@ -82,6 +82,11 @@ class UploadTweetController: UIViewController {
                 print("DEBUG: faild to upload tweet with error \(error.localizedDescription)")
                 return
             }
+            
+            if case .reply(let tweet) = self.config {
+                NotificationServices.shared.uploadNotification(type: .reply, tweet: tweet)
+            }
+            
             self.dismiss(animated: true, completion: nil)
         }
         

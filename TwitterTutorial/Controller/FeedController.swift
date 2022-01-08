@@ -21,7 +21,7 @@ class FeedContoller: UICollectionViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         configureUI()
-        fetchTweet()
+        fetchTweets()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -31,22 +31,32 @@ class FeedContoller: UICollectionViewController {
     }
     
     //MARK: - API
-    func fetchTweet() {
+    func fetchTweets() {
+        collectionView.refreshControl?.beginRefreshing()
         TweetService.shared.fetchTweets { tweets in
-            self.tweets = tweets
-            self.checkIfUserLikeTweets(tweets)
+            self.tweets = tweets.sorted(by: { $0.timestamp > $1.timestamp})
+            self.checkIfUserLikeTweets(self.tweets)
+            self.collectionView.refreshControl?.endRefreshing()
         }
     }
     
     func checkIfUserLikeTweets(_ tweets: [Tweet]) {
-        for (index,tweet) in tweets.enumerated() {
+        self.tweets.forEach { tweet in
             TweetService.shared.checkIfUserLikedTweet(tweet) { didLike in
                 guard didLike == true else { return }
                 
-                self.tweets[index].didLike = true
+                if let index = self.tweets.firstIndex(where: {$0.tweetID == tweet.tweetID}) {
+                    self.tweets[index].didLike = true
+                }
             }
         }
     }
+    //MARK: - Selector
+    
+    @objc func handleRefresh() {
+        fetchTweets()
+    }
+    
     //MARK: - helper
     func configureUI(){
         self.view.backgroundColor = .white
@@ -56,9 +66,11 @@ class FeedContoller: UICollectionViewController {
         
         let imageView = UIImageView(image: UIImage(named: "twitter_logo_blue"))
         imageView.contentMode = .scaleAspectFit
-        
         navigationItem.titleView = imageView
         
+        let refreshControl = UIRefreshControl()
+        refreshControl.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
+        collectionView.refreshControl = refreshControl
     }
     
     func configureLeftBarButton() {
@@ -130,6 +142,11 @@ extension FeedContoller: TweetCellDelegate {
         TweetService.shared.likeTweet(tweet: tweet) { err,ref in
             cell.tweet?.didLike.toggle()
             cell.tweet?.likes = tweet.didLike ? tweet.likes - 1 : tweet.likes + 1
+            
+            // only upload notificaiton if tweet is being liked
+            guard cell.tweet?.didLike ?? false else { return }
+            NotificationServices.shared.uploadNotification(type: .like,tweet:tweet)
+            
         }
         
     }

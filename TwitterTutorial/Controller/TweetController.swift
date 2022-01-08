@@ -36,12 +36,13 @@ class TweetController: UICollectionViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        navigationController?.navigationBar.isHidden = false
+        navigationController?.navigationBar.barStyle = .default
         configureCollectionView()
-        navigationItem.leftBarButtonItem?.tintColor = .twitterBlue
         fetchReplies()
 
     }
-
+    
     func configureCollectionView() {
         collectionView.backgroundColor = .white
         collectionView.register(TweetCell.self, forCellWithReuseIdentifier: reuseIdentifier)
@@ -78,7 +79,6 @@ extension TweetController {
 
 }
 //MARK: - UICollectionViewDelegate
-
 extension TweetController {
     override func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: headerIdentifier, for: indexPath) as! TweetHeader
@@ -89,7 +89,6 @@ extension TweetController {
 }
 
 //MARK: - UICollectionViewDelegateFlowLayout
-
 extension TweetController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
         
