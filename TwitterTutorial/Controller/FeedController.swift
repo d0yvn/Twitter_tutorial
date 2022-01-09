@@ -148,6 +148,12 @@ extension FeedContoller: TweetCellDelegate {
             NotificationServices.shared.uploadNotification(type: .like,tweet:tweet)
             
         }
-        
+    }
+    
+    func handleFetchUser(withUsername username: String) {
+        UserService.shared.fetchUser(withUsername: username) { user in
+            let vc = ProfileController(user: user)
+            self.navigationController?.pushViewController(vc, animated: true)
+        }
     }
 }

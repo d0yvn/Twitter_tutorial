@@ -230,8 +230,8 @@
 				787190A8278959E0005BE5B8 /* Profile */,
 				78766B0E277A14B70060F515 /* InputTextView.swift */,
 				7800114F277AD7BF003E074E /* TweetCell.swift */,
-				78719065278067DB005BE5B8 /* UserCell.swift */,
 				787190692781BED8005BE5B8 /* TweetHeader.swift */,
+				78719065278067DB005BE5B8 /* UserCell.swift */,
 				7871906F27830714005BE5B8 /* ActionSheetCell.swift */,
 				787190772786E112005BE5B8 /* NotificationCell.swift */,
 			);
