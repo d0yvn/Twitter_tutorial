@@ -1,5 +1,5 @@
 import UIKit
-
+import Firebase
 
 private let identifier = "TweetCell"
 private let headerIdentifier = "ProfileHeader"
@@ -23,7 +23,7 @@ class ProfileController: UICollectionViewController{
         case .likes: return likedTweet
         }
     }
-
+    
     //MARK: - Lifecycle
     init(user:User) {
         self.user = user
@@ -130,7 +130,11 @@ extension ProfileController {
 //MARK: - UICollectionViewDelegateFlowLayout
 extension ProfileController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        return CGSize(width: view.frame.width, height: 350)
+        
+        let height:CGFloat = 340
+        
+        
+        return CGSize(width: view.frame.width, height: height)
     }
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         
@@ -176,19 +180,33 @@ extension ProfileController: ProfileHeaderDelegate {
                 self.user.isFollowed = true
                 self.collectionView.reloadData()
                 
-                NotificationServices.shared.uploadNotification(type: .follow, user: self.user)
+                NotificationServices.shared.uploadNotification(toUser: self.user,type: .follow)
             }
-        }  
+        }
     }
 }
 
 //MARK: - EditProfileControllerDelegate
 extension ProfileController: EditProfileControllerDelegate {
+    func handleLogout() {
+
+        do {
+            try Auth.auth().signOut()
+            let vc = LoginController()
+            vc.modalPresentationStyle = .fullScreen
+            present(vc, animated: true, completion: nil)
+        } catch let error {
+            print("failed to logout \(error.localizedDescription)")
+        }
+        
+    }
+    
     func controller(_ controller: EditProfileController, wantToUpdate user: User) {
         controller.dismiss(animated: true, completion: nil)
         self.user = user
         self.collectionView.reloadData()
     }
+    
     
     
 }

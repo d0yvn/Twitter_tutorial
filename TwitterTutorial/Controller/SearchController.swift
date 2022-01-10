@@ -2,9 +2,16 @@ import UIKit
 
 private let identifier = "UserCell"
 
-class ExploreController: UITableViewController {
+enum SearchControllerConfiguration {
+    case messages
+    case userSearch
+}
+class SearchController: UITableViewController {
     
     //MARK: - Properties
+    
+    private let config: SearchControllerConfiguration
+    
     private var users = [User]() {
         didSet{ tableView.reloadData() }
     }
@@ -21,6 +28,15 @@ class ExploreController: UITableViewController {
     
     //MARK: - LifeCycles
     
+    init(config: SearchControllerConfiguration) {
+        self.config = config
+        super.init(style: .plain)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -33,6 +49,12 @@ class ExploreController: UITableViewController {
         super.viewWillAppear(animated)
         navigationController?.navigationBar.barStyle = .default
         navigationController?.navigationBar.isHidden = false
+    }
+    
+    //MARK: - Selector
+    
+    @objc func handleDismissal() {
+        dismiss(animated: true, completion: nil)
     }
     //MARK: - API
     
@@ -49,6 +71,10 @@ class ExploreController: UITableViewController {
         tableView.register(UserCell.self, forCellReuseIdentifier: identifier)
         tableView.rowHeight = 60
         tableView.separatorStyle = .none
+        
+        if config == .messages {
+            navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(handleDismissal))
+        }
     }
     
     func configureSearchController() {
@@ -61,7 +87,7 @@ class ExploreController: UITableViewController {
     }
 }
 
-extension ExploreController {
+extension SearchController{
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return isSearchMode ? filterdUsers.count : users.count
@@ -81,7 +107,7 @@ extension ExploreController {
     }
 }
 
-extension ExploreController : UISearchResultsUpdating {
+extension SearchController: UISearchResultsUpdating {
     func updateSearchResults(for searchController: UISearchController) {
         guard let searchText = searchController.searchBar.text?.lowercased() else { return }
         filterdUsers = users.filter({ $0.username.contains(searchText)})

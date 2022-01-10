@@ -41,6 +41,8 @@ class FeedContoller: UICollectionViewController {
     }
     
     func checkIfUserLikeTweets(_ tweets: [Tweet]) {
+        
+        
         self.tweets.forEach { tweet in
             TweetService.shared.checkIfUserLikedTweet(tweet) { didLike in
                 guard didLike == true else { return }
@@ -56,7 +58,12 @@ class FeedContoller: UICollectionViewController {
     @objc func handleRefresh() {
         fetchTweets()
     }
-    
+    @objc func handleLeftBarTapped() {
+        print("DEBUG: show user profile")
+        guard let user = user else { return }
+        let controller = ProfileController(user: user)
+        navigationController?.pushViewController(controller, animated: true)
+    }
     //MARK: - helper
     func configureUI(){
         self.view.backgroundColor = .white
@@ -81,7 +88,9 @@ class FeedContoller: UICollectionViewController {
         profileimageView.layer.cornerRadius = 32 / 2
         profileimageView.layer.masksToBounds = true
         profileimageView.sd_setImage(with: user.profileimageURL!, completed: nil)
-        
+        profileimageView.isUserInteractionEnabled = true
+        let tap = UITapGestureRecognizer(target: self, action: #selector(handleLeftBarTapped))
+        profileimageView.addGestureRecognizer(tap)
         navigationItem.leftBarButtonItem = UIBarButtonItem(customView: profileimageView)
     }
 }
@@ -145,7 +154,7 @@ extension FeedContoller: TweetCellDelegate {
             
             // only upload notificaiton if tweet is being liked
             guard cell.tweet?.didLike ?? false else { return }
-            NotificationServices.shared.uploadNotification(type: .like,tweet:tweet)
+            NotificationServices.shared.uploadNotification(toUser:tweet.user,type: .like,tweetID: tweet.tweetID)
             
         }
     }

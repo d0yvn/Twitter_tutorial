@@ -12,7 +12,9 @@ private let reuseIdentifier = "EditProfileCell"
 
 protocol EditProfileControllerDelegate:class {
     func controller(_ controller: EditProfileController,wantToUpdate user: User)
+    func handleLogout()
 }
+
 class EditProfileController: UITableViewController{
     //MARK: - Properties
     
@@ -26,6 +28,8 @@ class EditProfileController: UITableViewController{
     private var selectedImage:UIImage? {
         didSet{ headerView.profileImageView.image = selectedImage }
     }
+    
+    private let footerView = EditProfileFooter()
     
     //MARK: - Lifecycle
     init(user:User) {
@@ -64,8 +68,8 @@ class EditProfileController: UITableViewController{
     
     //MARK: - Helper
     func configureNavigationBar(){
-        navigationController?.navigationBar.barTintColor = .twitterBlue
-//        navigationController?.navigationBar.barStyle = .black
+        navigationController?.navigationBar.backgroundColor = .twitterBlue
+        navigationController?.navigationBar.barStyle = .black
         navigationController?.navigationBar.isTranslucent = true
         
         navigationController?.navigationBar.tintColor = .white
@@ -78,7 +82,12 @@ class EditProfileController: UITableViewController{
     func configureTableView() {
         tableView.tableHeaderView = headerView
         headerView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 180)
-        tableView.tableFooterView = UIView()
+        
+        footerView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 50)
+        footerView.backgroundColor = .red
+        tableView.tableFooterView = footerView
+        footerView.delegate = self
+        
         headerView.delegate = self
         tableView.register(EditProfileCell.self, forCellReuseIdentifier: reuseIdentifier)
     }
@@ -152,5 +161,21 @@ extension EditProfileController: EditProfileCellDelagte {
             user.bio = cell.bioTextView.text
             
         }
+    }
+}
+
+extension EditProfileController : EditProfileFooterDelegate {
+    func handleLogout() {
+        let alert = UIAlertController(title: nil, message: "Are you sure you want to log out?", preferredStyle: .actionSheet)
+        
+        alert.addAction(UIAlertAction(title: "Log out", style: .destructive, handler: { _ in
+            self.dismiss(animated: true) {
+                self.delegate?.handleLogout()
+            }
+            
+        }))
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        
+        present(alert, animated: true, completion: nil)
     }
 }

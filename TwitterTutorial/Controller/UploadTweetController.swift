@@ -79,7 +79,10 @@ class UploadTweetController: UIViewController {
             }
             
             if case .reply(let tweet) = self.config {
-                NotificationServices.shared.uploadNotification(type: .reply, tweet: tweet)
+                NotificationServices.shared.uploadNotification(toUser: self.user,
+                                                               type: .reply,
+                                                               tweetID:tweet.tweetID
+                )
             }
             
             self.dismiss(animated: true, completion: nil)

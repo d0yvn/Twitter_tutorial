@@ -41,7 +41,6 @@ struct TweetService {
     // tweet 피드 업로드
     func fetchTweets(completion :@escaping([Tweet]) -> Void) {
         var tweets = [Tweet]()
-        
         guard let currentUid = Auth.auth().currentUser?.uid else { return }
         
         REF_USER_FOLLOWINGS.child(currentUid).observe(.childAdded) { snapshot in
